@@ -1,19 +1,16 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 Libraries used:
-```{r, results='hide', message=FALSE, warning=FALSE}
+
+```r
 library(lubridate)
 library(dplyr)
 library(ggplot2)
 ```
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 if(!file.exists("activity.csv")) {
     unzip("activity.zip")
 }
@@ -27,7 +24,8 @@ activities <- filter(rawActivities, !is.na(steps))
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 # Calculate total steps per day
 totalStepsPerDay <- activities %>%
     group_by(date) %>%
@@ -38,14 +36,30 @@ ggplot(data = totalStepsPerDay, aes(totalSteps)) +
     geom_histogram(bins = 30, fill = "darkgreen") +
     xlab("Total number of steps taken each day") +
     ggtitle("Histogram of total number of steps taken each day")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+```r
 mean(totalStepsPerDay$totalSteps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(totalStepsPerDay$totalSteps)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 # Average steps over all days by 5-minute time interval
 avgStepsPerDay <- activities %>%
     group_by(interval) %>%
@@ -71,14 +85,17 @@ ggplot(data = avgStepsPerDay, aes(x = timeInterval, y = avgSteps)) +
     ggtitle(paste("5-minute Average # of steps taken across", numDays, "days", sep = " "))
 ```
 
-Looking at the graph above, the **`r format(maxStepsTimeInterval, format = "%H:%M")`** 5-minute interval has the **max** number of steps averaged across all days.
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+Looking at the graph above, the **08:35** 5-minute interval has the **max** number of steps averaged across all days.
 
 
 ## Imputing missing values
 
-Total number of rows with NAs: `r sum(is.na(rawActivities$steps))`
+Total number of rows with NAs: 2304
 
-```{r}
+
+```r
 # Impute NAs using Average Steps (over all days) Per interval
 
 # Create a duplicate dataset
@@ -102,16 +119,31 @@ ggplot(data = imputedTotalStepsPerDay, aes(totalSteps)) +
     geom_histogram(bins = 30, fill = "darkgreen") +
     xlab("Total number of steps taken each day") +
     ggtitle("Histogram of total number of steps taken each day")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
 mean(imputedTotalStepsPerDay$totalSteps)
-median(imputedTotalStepsPerDay$totalSteps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
+median(imputedTotalStepsPerDay$totalSteps)
+```
+
+```
+## [1] 10766.19
 ```
 The **mean** total steps per day remains the **same** after imputing NAs, however the **median increased** from 10765 to 10766.19.
 Imputing missing steps significantly increased the number of days where there were around 10,714 steps, however, the mean and median hardly changed.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # Create weekday/weekend factor
 imputedActivities$dayFactor <-  factor(weekdays(imputedActivities$date) %in% c("Saturday", "Sunday"), 
                         levels = c("FALSE", "TRUE"), 
@@ -136,4 +168,6 @@ ggplot(data = dayTypeAvgSteps, aes(x = timeInterval, y = avgSteps)) +
     ylab("Average number of steps taken") +
     ggtitle("5-minute Average # of steps taken across weekday or weekend days")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 The morning between 6am and 9am shows the biggest difference between weekday activities and weekend activities.
